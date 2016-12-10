@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# cookies to download data from kaggle
+cookies.txt
+
+# data
+data/*
