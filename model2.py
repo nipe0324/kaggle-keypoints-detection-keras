@@ -6,8 +6,9 @@
 import time
 from datetime import datetime
 from load_data import load2d
-from saver import save_arch
+from saver import save_arch, save_history
 from plotter import plot_hist, plot_model_arch
+import pickle
 
 from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Activation
@@ -69,5 +70,6 @@ hist = model.fit(X, y, nb_epoch=nb_epoch, validation_split=validation_split, cal
 print('end_time: %s, duracion(min): %d' % (datetime.now(), int(time.time()-start_time) / 60))
 
 # プロットしてファイルとして保存する
-plot_hist(hist, model_name)
-plot_model_arch(model, model_name)
+# plot_hist(hist, model_name)
+# plot_model_arch(model, model_name)
+save_history(hist, model_name)

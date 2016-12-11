@@ -1,4 +1,5 @@
 from keras.models import model_from_json
+import pickle
 
 def save_arch(model, path):
   """
@@ -16,3 +17,8 @@ def load_arch(path):
     path: 取得先のファイル名
   """
   return model_from_json(open(path).read())
+
+
+def save_history(hist, model_name):
+  with open('history/' + model_name +'.pickle', mode='wb') as f:
+    pickle.dump(hist.history, f)

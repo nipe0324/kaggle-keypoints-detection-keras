@@ -7,8 +7,9 @@
 import time
 from datetime import datetime
 from load_data import load2d
-from saver import save_arch, load_arch
+from saver import save_arch, save_history
 from plotter import plot_hist, plot_model_arch
+import pickle
 
 import numpy as np
 from collections import OrderedDict
