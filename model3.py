@@ -76,7 +76,6 @@ save_arch(model, arch_path) # モデルを保存しておく
 # トレーニングの準備
 checkpoint_collback = ModelCheckpoint(filepath = weights_path,
                                       monitor='val_loss',
-                                      verbose=1,
                                       save_best_only=True,
                                       mode='auto')
 
