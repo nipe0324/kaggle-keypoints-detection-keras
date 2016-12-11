@@ -19,6 +19,7 @@ from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Activation, Dropout
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping
+from keras import backend as K
 
 
 # 変数
@@ -40,6 +41,16 @@ weights_path = 'model/' + model_name + '-weights-' + str(nb_epoch) + '.hdf5'
 # データ読み込み
 X, y = load2d()
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=validation_split, random_state=42)
+
+# ~/.keras/keras.json の image_dim_orderring が th / tf でシェープを変える
+if K.image_dim_ordering() == 'th':
+    X_train = X_train.reshape(X_train.shape[0], 1, 96, 96)
+    X_val = X_val.reshape(X_val.shape[0], 1, 96, 96)
+    input_shape = (1, 96, 96)
+else:
+    X_train = X_train.reshape(X_train.shape[0], 96, 96, 1)
+    X_val = X_val.reshape(X_val.shape[0], 96, 96, 1)
+    input_shape = (96, 96, 1)
 
 
 # モデル定義

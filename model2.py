@@ -14,6 +14,7 @@ from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Activation
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint
+from keras import backend as K
 
 # 変数
 model_name = 'model2'
@@ -29,10 +30,17 @@ weights_path = 'model/' + model_name + '-weights-' + str(nb_epoch) + '.hdf5'
 # 入力データ
 X, y = load2d()
 
+if K.image_dim_ordering() == 'th':
+    X = X.reshape(X.shape[0], 1, 96, 96)
+    input_shape = (1, 96, 96)
+else:
+    X = X.reshape(X.shape[0], 96, 96, 1)
+    input_shape = (96, 96, 1)
+
 # モデル定義
 model = Sequential()
 
-model.add(Convolution2D(32, 3, 3, input_shape=(1, 96, 96)))
+model.add(Convolution2D(32, 3, 3, input_shape=input_shape))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
