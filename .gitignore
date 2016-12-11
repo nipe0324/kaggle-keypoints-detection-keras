@@ -88,3 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# unzip file
+data/training.csv
+data/test.csv

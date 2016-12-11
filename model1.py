@@ -17,7 +17,7 @@ from keras.callbacks import ModelCheckpoint
 
 # 変数
 model_name = 'model1'
-nb_epoch = 1000
+nb_epoch = 100
 validation_split = 0.2
 lr = 0.01
 momentum = 0.9
