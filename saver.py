@@ -22,3 +22,8 @@ def load_arch(path):
 def save_history(hist, model_name):
   with open('history/' + model_name +'.pickle', mode='wb') as f:
     pickle.dump(hist.history, f)
+
+def load_history(model_name):
+  with open('history/' + model_name + '.pickle', mode='rb') as f:
+    hist = pickle.load(f)
+  return hist

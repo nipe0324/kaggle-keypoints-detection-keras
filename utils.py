@@ -1,6 +1,6 @@
 from keras import backend as K
 
-def reshape2d_by_image_dim_ordering(X)
+def reshape2d_by_image_dim_ordering(X):
   """
   image_dim_orderring に合わせて2D画像のshapeを変える
   """
