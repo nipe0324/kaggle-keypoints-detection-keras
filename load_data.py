@@ -40,7 +40,7 @@ def load(test=False, cols=None):
 
 def load2d(test=False, cols=None):
     X, y = load(test, cols)
-    X = X.reshape(-1, 1, 96, 96) # channel, height, width
+    X = X.reshape(-1, 96, 96, 1) # height, width, channel
     return X, y
 
 
