@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 from load_data import load2d
 from saver import save_arch, save_history
+from utils import reshape2d_by_image_dim_ordering
 from plotter import plot_hist, plot_model_arch
 import pickle
 
@@ -30,12 +31,10 @@ weights_path = 'model/' + model_name + '-weights-' + str(nb_epoch) + '.hdf5'
 # 入力データ
 X, y = load2d()
 
-if K.image_dim_ordering() == 'th':
-    X = X.reshape(X.shape[0], 1, 96, 96)
-    input_shape = (1, 96, 96)
-else:
-    X = X.reshape(X.shape[0], 96, 96, 1)
-    input_shape = (96, 96, 1)
+# image_dim_orderring に合わせて2D画像のshapeを変える
+X_train, input_shape = reshape2d_by_image_dim_ordering(X_train)
+X_val,   _           = reshape2d_by_image_dim_ordering(X_val)
+
 
 # モデル定義
 model = Sequential()

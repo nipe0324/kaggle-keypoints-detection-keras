@@ -3,6 +3,8 @@ import os
 import numpy as np
 from pandas.io.parsers import read_csv
 from sklearn.utils import shuffle
+from utils import reshape2d_by_image_dim_ordering
+from keras import backend as K
 
 FTRAIN = 'data/training.csv'
 FTEST = 'data/test.csv'
@@ -40,7 +42,8 @@ def load(test=False, cols=None):
 
 def load2d(test=False, cols=None):
     X, y = load(test, cols)
-    X = X.reshape(-1, 96, 96, 1) # height, width, channel
+    # image_dim_orderring に合わせて2D画像のshapeを変える
+    X, _ = reshape2d_by_image_dim_ordering(X)
     return X, y
 
 
