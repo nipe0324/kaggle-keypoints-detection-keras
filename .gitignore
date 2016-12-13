@@ -95,3 +95,6 @@ data/test.csv
 # large file (more than 100 MB)
 model/model6-weights-5000.hdf5
 model/model7-weights-5000.hdf5
+
+# results
+results/*.csv
