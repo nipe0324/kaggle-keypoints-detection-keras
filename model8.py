@@ -1,13 +1,14 @@
 # モデル8
 #
-# [WIP] 各データ数に応じてモデルの特化
+# 各データ数に応じてモデルの特化
 # ref: https://elix-tech.github.io/ja/2016/06/02/kaggle-facial-keypoints-ja.html
 #
 
 import time
 from datetime import datetime
 from load_data import load2d
-from saver import save_arch, save_history
+from saver import save_arch, save_history, load_arch
+from utils import reshape2d_by_image_dim_ordering
 from plotter import plot_hist, plot_model_arch
 import pickle
 
@@ -17,10 +18,23 @@ from collections import OrderedDict
 from sklearn.cross_validation import train_test_split
 
 from data_generator import FlippedImageDataGenerator
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.layers import Convolution2D, MaxPooling2D, Flatten, Dense, Activation, Dropout
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping
+
+# 変数
+model_name = 'model8'
+nb_epoch = 5000
+validation_split = 0.2
+lr = 0.01
+start = 0.03
+stop = 0.001
+learning_rates = np.linspace(start, stop, nb_epoch)
+patience = 100 # EarlyStoppingでn回連続でエラーの最小値が更新されなかったらストップさせる
+momentum = 0.9
+nesterov = True
+loss_method = 'mean_squared_error'
 
 
 # 定数
@@ -84,71 +98,51 @@ SPECIALIST_SETTINGS = [
         ),
     ]
 
-# 変数
-model_name = 'model8'
-nb_epoch = 2 # 5000
-validation_split = 0.2
-lr = 0.01
-start = 0.03
-stop = 0.001
-learning_rates = np.linspace(start, stop, nb_epoch)
-patience = 100 # EarlyStoppingでn回連続でエラーの最小値が更新されなかったらストップさせる
-momentum = 0.9
-nesterov = True
-loss_method = 'mean_squared_error'
-
-
-# データ読み込み
-X, y = load2d()
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=validation_split, random_state=42)
 
 
 # モデル定義
-def fit_specialists():
-    model7 = load_arch('model/model7-arch-5000.json')
-    specialists = OrderedDict()
+specialists = OrderedDict()
 
-    for setting in SPECIALIST_SETTINGS:
-        # 特定のカラムのデータの取得
-        cols = setting['columns']
-        X, y = load2d(cols=cols)
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-        model = model_from_json(model7.to_json()) # アーキテクチャのみを取り出す
-        model.layers.pop() # 出力層を取り除く
-        model.outputs = [model.layers[-1].output]
-        model.layers[-1].outbound_nodes = []
-        model.add(Dense(len(cols))) # 新しい出力層を追加
+for setting in SPECIALIST_SETTINGS:
+    # 特定のカラムのデータの取得
+    cols = setting['columns']
+    X, y = load2d(cols=cols)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=validation_split, random_state=42)
 
-        save_arch(model, arch_path) # モデルを保存しておく
+    # output layerだけカラムに合わせて修正
+    model = load_arch('model/model7-arch-5000.json') # アーキテクチャのみを取り出す
+    model.layers.pop() # 出力層を取り除く
+    model.outputs = [model.layers[-1].output]
+    model.layers[-1].outbound_nodes = []
+    model.add(Dense(len(cols))) # 新しい出力層を追加
 
-        # トレーニングの準備
-        sgd = SGD(lr=start, momentum=0.9, nesterov=True)
-        model.compile(loss='mean_squared_error', optimizer=sgd)
-        plot(model, to_file="model_{}.png".format(cols[0]), show_shapes=True)
+    # モデルを保存しておく
+    arch_path = 'model/' + model_name + '-' + setting['id'] + '-arch-' + str(nb_epoch) + '.json'
+    save_arch(model, arch_path) # モデルを保存しておく
 
-        flipgen = FlippedImageDataGenerator()
-        flipgen.flip_indices = setting['flip_indices']
-        early_stop = EarlyStopping(patience=100)
-        learning_rates = np.linspace(start, stop, nb_epoch)
-        change_lr = LearningRateScheduler(lambda epoch: float(learning_rates[epoch]))
+    # トレーニングの準備
+    sgd = SGD(lr=start, momentum=momentum, nesterov=nesterov)
+    model.compile(loss=loss_method, optimizer=sgd)
+    #plot(model, to_file="model_{}.png".format(cols[0]), show_shapes=True)
 
-        print("Training model for columns {} for {} epochs".format(cols, nb_epoch))
+    flipgen = FlippedImageDataGenerator()
+    flipgen.flip_indices = setting['flip_indices']
+    early_stop = EarlyStopping(patience=patience)
+    learning_rates = np.linspace(start, stop, nb_epoch)
+    change_lr = LearningRateScheduler(lambda epoch: float(learning_rates[epoch]))
+    weights_path = 'model/' + model_name + '-' + setting['id'] + '-weights-' + str(nb_epoch) + '.hdf5'
+    checkpoint_collback = ModelCheckpoint(filepath = weights_path,
+                                          monitor='val_loss',
+                                          save_best_only=True,
+                                          mode='auto')
 
-        hist8 = model.fit_generator(flipgen.flow(X_train, y_train),
-                                     samples_per_epoch=X_train.shape[0],
-                                     nb_epoch=nb_epoch,
-                                     validation_data=(X_val, y_val),
-                                     callbacks=[change_lr, early_stop])
-
-        save_arch(model, arch_path) # モデルを保存しておく
-        specialists[cols] = model
-
-        # # 保存
-        # save(model, 'model')
-
-        # # プロット
-        # plot_hist(hist7)
+    print("Training model for columns {} for {} epochs".format(cols, nb_epoch))
 
 
-fit_specialists()
-
+    # トレーニング実施
+    hist   = model.fit_generator(flipgen.flow(X_train, y_train),
+                                 samples_per_epoch=X_train.shape[0],
+                                 nb_epoch=nb_epoch,
+                                 validation_data=(X_val, y_val),
+                                 callbacks=[checkpoint_collback, change_lr, early_stop])
+    save_history(hist, model_name + '-' + setting['id'])
