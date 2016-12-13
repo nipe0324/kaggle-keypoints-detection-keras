@@ -9,7 +9,7 @@ def plot_hist(history, model_name=None):
   plt.legend()
   plt.xlabel('epoch')
   plt.ylabel('loss')
-  plt.ylim(1e-3, 1e-2)
+  plt.ylim(1e-4, 1e-2)
   plt.yscale('log')
   if model_name:
     path = os.path.join('images', model_name + '-loss.png')
