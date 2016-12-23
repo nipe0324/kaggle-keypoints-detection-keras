@@ -22,3 +22,5 @@ kaggle keypoints detection tutorial by keras with tensorflow
 | model6 | model5 + epoch/fc   | 5,000                  |   341min |    0.00066 |   0.00097 |
 | model7 | model6 + early stop | 5,000 (3578:early stop)|   246min |    0.00066 |   0.00094 |
 | model8 |                     |                        |          |            |           |
+
+※2〜やる

@@ -1,2 +1,1 @@
-model/model6-weights-5000.tar.gz filter=lfs diff=lfs merge=lfs -text
-model/model7-weights-5000.tar.gz filter=lfs diff=lfs merge=lfs -text
+model.tar.gz filter=lfs diff=lfs merge=lfs -text

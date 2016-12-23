@@ -98,3 +98,7 @@ model/model7-weights-5000.hdf5
 
 # results
 results/*.csv
+
+# not unzip model data
+model
+model_old
