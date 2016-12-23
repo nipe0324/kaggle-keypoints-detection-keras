@@ -5,7 +5,7 @@ kaggle keypoints detection tutorial by keras with tensorflow
 
 ## Execution time
 
-- AWS GPU g2.2xlarge (※ CPUの場合はx2倍ぐらいの時間がかかる)
+- AWS GPU g2.2xlarge
 - CUDA 8.0
 - cuDNN 5.0
 - TensorFlow 0.1.2
@@ -21,6 +21,4 @@ kaggle keypoints detection tutorial by keras with tensorflow
 | model5 | model4 + dropout    | 1,000                  |    58min |    0.00169 |   0.00158 |
 | model6 | model5 + epoch/fc   | 5,000                  |   341min |    0.00066 |   0.00097 |
 | model7 | model6 + early stop | 5,000 (3578:early stop)|   246min |    0.00066 |   0.00094 |
-| model8 |                     |                        |          |            |           |
-
-※2〜やる
+| model8 | train each facial key points using model7 weights |  5,000 |   about 2-3 days |          ? |         ? |
